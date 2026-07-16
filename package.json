@@ -6,11 +6,13 @@
     "url": "https://github.com/lifeforge-app/lifeforge-module-currencyConverter.git"
   },
   "version": "0.0.5",
+  "type": "module",
   "author": "Melvin Chia <melvinchia623600@gmail.com>",
   "description": "Convert between currencies with real-time exchange rates.",
   "scripts": {
-    "types": "cd client && bun tsc",
-    "build:client": "cd client && bun run vite build"
+    "typecheck": "cd client && tsc",
+    "build": "build:client",
+    "build:client": "cd client && vite build"
   },
   "dependencies": {
     "chart.js": "^4.5.0",
