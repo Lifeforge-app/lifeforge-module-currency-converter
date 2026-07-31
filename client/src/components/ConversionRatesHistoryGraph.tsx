@@ -141,7 +141,10 @@ export default function ConversionRatesHistoryGraph() {
     <>
       <div className="flex-center flex w-full flex-col gap-3 sm:flex-row">
         <ListboxInput
-          buttonContent={
+          className="w-full"
+          icon="tabler:arrow-up"
+          label="From"
+          renderContent={() => (
             <div className="flex items-center gap-2">
               {CURRENCIES[fromCurrency] && (
                 <Icon
@@ -152,10 +155,7 @@ export default function ConversionRatesHistoryGraph() {
                 {fromCurrency} - {CURRENCIES[fromCurrency]?.[0]}
               </span>
             </div>
-          }
-          className="w-full"
-          icon="tabler:arrow-up"
-          label="From"
+          )}
           value={fromCurrency}
           onChange={setFromCurrency}
         >
@@ -181,7 +181,10 @@ export default function ConversionRatesHistoryGraph() {
           }}
         />
         <ListboxInput
-          buttonContent={
+          className="w-full"
+          icon="tabler:arrow-down"
+          label="To"
+          renderContent={() => (
             <div className="flex items-center gap-2">
               {CURRENCIES[toCurrency] && (
                 <Icon
@@ -192,10 +195,7 @@ export default function ConversionRatesHistoryGraph() {
                 {toCurrency} - {CURRENCIES[toCurrency]?.[0]}
               </span>
             </div>
-          }
-          className="w-full"
-          icon="tabler:arrow-down"
-          label="To"
+          )}
           value={toCurrency}
           onChange={setToCurrency}
         >
