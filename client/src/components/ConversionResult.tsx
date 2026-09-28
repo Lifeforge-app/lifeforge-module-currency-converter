@@ -1,5 +1,12 @@
 import { useModuleTranslation } from '@lifeforge/localization'
-import { ErrorScreen, Icon, LoadingScreen } from '@lifeforge/ui'
+import {
+  Box,
+  ErrorScreen,
+  Flex,
+  Icon,
+  LoadingScreen,
+  Text
+} from '@lifeforge/ui'
 
 import { useCurrencies } from '../hooks/useCurrencies'
 import type { ExchangeRates } from '../interfaces/currency_converter_interfaces'
@@ -37,50 +44,62 @@ function ConversionResult({
   }
 
   return (
-    <div className="text-center">
+    <Box style={{ textAlign: 'center' }}>
       {ratesData && ratesData.rates && ratesData.rates[toCurrency] ? (
         <>
-          <div className="flex-center flex-wrap gap-2 text-3xl font-bold">
-            <div className="flex-center gap-2">
+          <Flex centered gap="sm" wrap="wrap">
+            <Flex centered gap="sm">
               <Icon
-                className="mr-1 text-2xl"
                 icon={`circle-flags:${currencies.find(c => c.code === fromCurrency)?.country.toLowerCase()}`}
+                mr="xs"
+                size="1.5rem"
               />
-              <span>{amount.toLocaleString()}</span>
-              <span className="text-bg-500">{fromCurrency}</span>
-            </div>
-            <span className="mx-4 block w-full md:w-auto">=</span>
-            <div className="flex-center gap-2">
+              <Text size="3xl" weight="bold">
+                {amount.toLocaleString()}
+              </Text>
+              <Text color="muted" size="3xl" weight="bold">
+                {fromCurrency}
+              </Text>
+            </Flex>
+            <Box mx="md" width={{ base: '100%', md: 'auto' }}>
+              <Text size="3xl" weight="bold">
+                =
+              </Text>
+            </Box>
+            <Flex centered gap="sm">
               <Icon
-                className="mr-1 text-2xl"
                 icon={`circle-flags:${currencies.find(c => c.code === toCurrency)?.country.toLowerCase()}`}
+                mr="xs"
+                size="1.5rem"
               />
-              <span>
+              <Text size="3xl" weight="bold">
                 {result?.toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 4
                 })}
-              </span>
-              <span className="text-bg-500">{toCurrency}</span>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="text-bg-500">
+              </Text>
+              <Text color="muted" size="3xl" weight="bold">
+                {toCurrency}
+              </Text>
+            </Flex>
+          </Flex>
+          <Box mt="md">
+            <Text color="muted">
               1 {fromCurrency} = {ratesData.rates[toCurrency].toFixed(4)}{' '}
               {toCurrency} • {t('misc.updatedMsg')}{' '}
               {lastUpdated ||
                 new Date(ratesData.timestamp * 1000).toLocaleTimeString()}
-            </span>
-          </div>
+            </Text>
+          </Box>
         </>
       ) : (
-        <div className="text-bg-500 py-4 text-xl">
+        <Text as="p" color="muted" py="md" size="xl">
           {toCurrency
             ? `Exchange rate for ${fromCurrency} to ${toCurrency} is not available`
             : 'No conversion data available'}
-        </div>
+        </Text>
       )}
-    </div>
+    </Box>
   )
 }
 

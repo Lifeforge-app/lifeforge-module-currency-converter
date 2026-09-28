@@ -1,4 +1,4 @@
-import { Button, ComboboxInput, ComboboxOption } from '@lifeforge/ui'
+import { Box, Button, ComboboxInput, ComboboxOption, Flex } from '@lifeforge/ui'
 
 import { useCurrencies } from '../hooks/useCurrencies'
 import type { Currency } from '../interfaces/currency_converter_interfaces'
@@ -23,8 +23,13 @@ function CurrencySelector({
   const { filteredCurrencies, setQueries } = useCurrencies()
 
   return (
-    <div className="mb-6 flex flex-col items-center gap-3 sm:flex-row">
-      <div className="w-full">
+    <Flex
+      align="center"
+      direction={{ base: 'column', sm: 'row' }}
+      gap="sm"
+      mb="lg"
+    >
+      <Box width="100%">
         <ComboboxInput
           displayValue={value => {
             const currency = currencies.find(c => c.code === value)
@@ -45,15 +50,15 @@ function CurrencySelector({
             />
           ))}
         </ComboboxInput>
-      </div>
+      </Box>
 
       <Button
-        className="w-full sm:w-auto"
         icon="tabler:arrows-exchange"
+        width={{ base: '100%', sm: 'auto' }}
         onClick={handleSwapCurrencies}
       />
 
-      <div className="w-full">
+      <Box width="100%">
         <ComboboxInput
           displayValue={value => {
             const currency = currencies.find(c => c.code === value)
@@ -74,8 +79,8 @@ function CurrencySelector({
             />
           ))}
         </ComboboxInput>
-      </div>
-    </div>
+      </Box>
+    </Flex>
   )
 }
 

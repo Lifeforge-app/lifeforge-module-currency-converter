@@ -1,5 +1,7 @@
+import { useQuery } from '@tanstack/react-query'
 import {
   CategoryScale,
+  type ChartData,
   Chart as ChartJS,
   Legend,
   LineElement,
@@ -8,16 +10,21 @@ import {
   Title,
   Tooltip
 } from 'chart.js'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Line } from 'react-chartjs-2'
 
 import {
+  Box,
   Button,
+  Flex,
   Icon,
   ListboxInput,
   ListboxOption,
+  Text,
   usePersonalization
 } from '@lifeforge/ui'
+
+import { forgeAPI } from '@/manifest'
 
 import { CURRENCIES } from '../constants/currencies'
 
@@ -33,61 +40,47 @@ ChartJS.register(
 
 export default function ConversionRatesHistoryGraph() {
   const { derivedThemeColor: themeColor } = usePersonalization()
-  const [supportedCurrencies, setSupportedCurrencies] = useState<string[]>([])
-  const [chartData, setChartData] = useState<any>({})
   const [fromCurrency, setFromCurrency] = useState('USD')
   const [toCurrency, setToCurrency] = useState('MYR')
-  const [isLoading, setIsLoading] = useState(false)
+  const currenciesQuery = useQuery(forgeAPI.getCurrencies.queryOptions())
 
-  useEffect(() => {
-    fetch('https://api.frankfurter.app/currencies')
-      .then(res => res.json())
-      .then(data => setSupportedCurrencies(Object.keys(data)))
-      .catch(err => console.error('Error fetching currencies:', err))
-  }, [])
+  const historyQuery = useQuery(
+    forgeAPI.getRatesHistory
+      .input({ from: fromCurrency, to: toCurrency })
+      .queryOptions({
+        enabled: !!fromCurrency && !!toCurrency && fromCurrency !== toCurrency
+      })
+  )
 
-  useEffect(() => {
-    if (!fromCurrency || !toCurrency || fromCurrency === toCurrency) return
+  const supportedCurrencies = currenciesQuery.data ?? []
 
-    setIsLoading(true)
-    fetch(
-      `https://api.frankfurter.app/1999-01-04..?from=${fromCurrency}&to=${toCurrency}`
-    )
-      .then(res => res.json())
-      .then(data => {
-        const entries = Object.entries(data.rates).map(([k, v]) => [
-          k,
-          Object.values(v as any)[0]
-        ])
+  const chartData: ChartData<'line'> = useMemo(() => {
+    if (!historyQuery.data) {
+      return { labels: [], datasets: [] }
+    }
 
-        setChartData({
-          labels: entries.map(([k]) =>
-            new Date(k as string).toLocaleDateString('en-GB', {
-              year: 'numeric',
-              month: 'short'
-            })
-          ),
-          datasets: [
-            {
-              label: `${fromCurrency} to ${toCurrency}`,
-              data: entries.map(([, v]) => v),
-              borderColor: themeColor,
-              backgroundColor: 'rgba(59, 130, 246, 0.1)',
-              pointBorderColor: 'rgba(0, 0, 0, 0)',
-              pointBackgroundColor: 'rgba(0, 0, 0, 0)',
-              pointHoverBackgroundColor: themeColor,
-              pointHoverBorderColor: themeColor,
-              lineTension: 0.4
-            }
-          ]
+    return {
+      labels: historyQuery.data.map(entry =>
+        new Date(entry.date).toLocaleDateString('en-GB', {
+          year: 'numeric',
+          month: 'short'
         })
-        setIsLoading(false)
-      })
-      .catch(err => {
-        console.error('Error fetching conversion rates:', err)
-        setIsLoading(false)
-      })
-  }, [fromCurrency, toCurrency])
+      ),
+      datasets: [
+        {
+          label: `${fromCurrency} to ${toCurrency}`,
+          data: historyQuery.data.map(entry => entry.rate),
+          borderColor: themeColor,
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          pointBorderColor: 'rgba(0, 0, 0, 0)',
+          pointBackgroundColor: 'rgba(0, 0, 0, 0)',
+          pointHoverBackgroundColor: themeColor,
+          pointHoverBorderColor: themeColor,
+          lineTension: 0.4
+        }
+      ]
+    }
+  }, [historyQuery.data, fromCurrency, toCurrency, themeColor])
 
   const options = useMemo(
     () => ({
@@ -139,22 +132,26 @@ export default function ConversionRatesHistoryGraph() {
 
   return (
     <>
-      <div className="flex-center flex w-full flex-col gap-3 sm:flex-row">
+      <Flex
+        centered
+        direction={{ base: 'column', sm: 'row' }}
+        gap="sm"
+        width="100%"
+      >
         <ListboxInput
-          className="w-full"
           icon="tabler:arrow-up"
           label="From"
           renderContent={() => (
-            <div className="flex items-center gap-2">
+            <Flex align="center" gap="sm">
               {CURRENCIES[fromCurrency] && (
                 <Icon
                   icon={`circle-flags:${CURRENCIES[fromCurrency][3].toLowerCase()}`}
                 />
               )}
-              <span>
+              <Text>
                 {fromCurrency} - {CURRENCIES[fromCurrency]?.[0]}
-              </span>
-            </div>
+              </Text>
+            </Flex>
           )}
           value={fromCurrency}
           onChange={setFromCurrency}
@@ -173,28 +170,27 @@ export default function ConversionRatesHistoryGraph() {
           ))}
         </ListboxInput>
         <Button
-          className="w-full sm:w-auto"
           icon="tabler:arrows-exchange"
+          width={{ base: '100%', sm: 'auto' }}
           onClick={() => {
             setFromCurrency(toCurrency)
             setToCurrency(fromCurrency)
           }}
         />
         <ListboxInput
-          className="w-full"
           icon="tabler:arrow-down"
           label="To"
           renderContent={() => (
-            <div className="flex items-center gap-2">
+            <Flex align="center" gap="sm">
               {CURRENCIES[toCurrency] && (
                 <Icon
                   icon={`circle-flags:${CURRENCIES[toCurrency][3].toLowerCase()}`}
                 />
               )}
-              <span>
+              <Text>
                 {toCurrency} - {CURRENCIES[toCurrency]?.[0]}
-              </span>
-            </div>
+              </Text>
+            </Flex>
           )}
           value={toCurrency}
           onChange={setToCurrency}
@@ -212,21 +208,21 @@ export default function ConversionRatesHistoryGraph() {
             />
           ))}
         </ListboxInput>
-      </div>
+      </Flex>
 
-      <div className="relative mt-4 min-h-64 flex-1">
-        {isLoading ? (
-          <div className="flex-center size-full">
-            <div className="loader"></div>
-          </div>
+      <Box flex="1" minHeight="16rem" mt="md" position="relative">
+        {historyQuery.isLoading ? (
+          <Flex centered height="100%" width="100%">
+            <Box className="loader" />
+          </Flex>
         ) : (
           Object.keys(chartData).length > 0 && (
-            <div className="h-full">
+            <Box height="100%">
               <Line data={chartData} options={options as any} />
-            </div>
+            </Box>
           )
         )}
-      </div>
+      </Box>
     </>
   )
 }
