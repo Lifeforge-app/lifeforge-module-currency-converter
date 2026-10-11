@@ -3,7 +3,7 @@
   "displayName": "Currency Converter",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lifeforge-app/lifeforge-module-currencyConverter.git"
+    "url": "https://github.com/Lifeforge-app/lifeforge-module-currency-converter.git"
   },
   "version": "0.0.1",
   "type": "module",
