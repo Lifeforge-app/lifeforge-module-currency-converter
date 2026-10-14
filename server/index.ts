@@ -46,7 +46,7 @@ const getRatesHistory = forge
 
     const entries = Object.entries(data.rates).map(([date, rates]) => ({
       date,
-      rate: Object.values(rates as Record<string, number>)[0]
+      rate: Object.values(rates as Record<string, number>)[0] ?? 0
     }))
 
     return response.ok(entries)
