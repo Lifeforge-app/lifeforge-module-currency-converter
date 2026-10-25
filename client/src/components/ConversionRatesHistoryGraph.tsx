@@ -14,12 +14,12 @@ import { useMemo, useState } from 'react'
 import { Line } from 'react-chartjs-2'
 
 import {
-  Box,
   Button,
   Flex,
   Icon,
   ListboxInput,
   ListboxOption,
+  Stack,
   Text,
   usePersonalization
 } from '@lifeforge/ui'
@@ -210,19 +210,18 @@ export default function ConversionRatesHistoryGraph() {
         </ListboxInput>
       </Flex>
 
-      <Box flex="1" minHeight="16rem" mt="md" position="relative">
-        {historyQuery.isLoading ? (
-          <Flex centered height="100%" width="100%">
-            <Box className="loader" />
-          </Flex>
-        ) : (
-          Object.keys(chartData).length > 0 && (
-            <Box height="100%">
-              <Line data={chartData} options={options as any} />
-            </Box>
-          )
+      <Stack
+        flex="1"
+        height="100%"
+        maxHeight="50vh"
+        minHeight="0"
+        mt="md"
+        position="relative"
+      >
+        {Object.keys(chartData).length > 0 && (
+          <Line data={chartData} options={options as any} />
         )}
-      </Box>
+      </Stack>
     </>
   )
 }
